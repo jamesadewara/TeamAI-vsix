@@ -1,0 +1,84 @@
+{
+  "name": "teamai-vsce-extension",
+  "version": "1.0.0",
+  "displayName": "TeamAI",
+  "description": "AI-powered development assistant for team collaboration",
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:teamai.openPanel"
+  ],
+  "main": "./dist/extension.js",
+  "files": [
+    "dist/**/*",
+    "webview/dist/**/*"
+  ],
+  "capabilities": {
+    "virtualWorkspaces": true,
+    "untrustedWorkspaces": {
+      "supported": true
+    }
+  },
+  "scripts": {
+    "watch": "tsc -watch -p .",
+    "build:webview": "cd webview && npm run build",
+    "build:extension": "npm run build:webview && tsc -p .",
+    "watch:extension": "tsc -watch -p .",
+    "watch:webview": "cd webview && npm run dev",
+    "package": "npm run build:extension && vsce package",
+    "compile": "tsc -p .",
+    "vscode:prepublish": "npm run build:extension"
+  },
+  "engines": {
+    "vscode": "^1.103.0"
+  },
+  "keywords": [],
+  "author": "James Ayomide Adewara",
+  "contributes": {
+    "commands": [
+      {
+        "command": "teamai.openPanel",
+        "title": "Open TeamAI",
+        "category": "TeamAI"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "teamai-sidebar",
+          "title": "TeamAI",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "teamai-sidebar": [
+        {
+          "icon": "media/icon.svg",
+          "id": "teamai-chat",
+          "name": "AI Assistant",
+          "type": "webview"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "TeamAI",
+      "properties": {
+        "teamai.backendUrl": {
+          "type": "string",
+          "default": "http://localhost:8000",
+          "description": "Backend API URL"
+        }
+      }
+    }
+  },
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "@types/vscode": "^1.103.0",
+    "typescript": "^4.9.4",
+    "vsce": "^2.15.0"
+  }
+}
