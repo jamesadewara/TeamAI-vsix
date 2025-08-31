@@ -1,5 +1,5 @@
 import api from "./auth";
-import type { Project, ProjectMembership, Repository } from "../types";
+import type { Project, ProjectMembership, Repository, User } from "../types";
 
 export const projectsAPI = {
   getProjects: async (): Promise<Project[]> => {
@@ -17,6 +17,24 @@ export const projectsAPI = {
     return response.data;
   },
 
+  addProjectMember: async (
+    projectId: string,
+    memberData: { user: string; role: string, project: string }
+  ): Promise<ProjectMembership> => {
+    const response = await api.post(
+      `/api/projects/${projectId}/members/`,
+      memberData
+    );
+    return response.data;
+  },
+
+  searchUsers: async (query: string): Promise<User[]> => {
+    const response = await api.get(
+      `/api/users/search/?q=${encodeURIComponent(query)}`
+    );
+    return response.data;
+  },
+
   updateProject: async (
     slug: string,
     projectData: Partial<Project>
@@ -31,19 +49,19 @@ export const projectsAPI = {
 
   getProjectMembers: async (slug: string): Promise<ProjectMembership[]> => {
     const response = await api.get(`/api/projects/${slug}/members/`);
-      return response.data?.results || [];
+    return response.data?.results || [];
   },
 
-  addProjectMember: async (
-    slug: string,
-    memberData: { user: number; role: string }
-  ): Promise<ProjectMembership> => {
-    const response = await api.post(
-      `/api/projects/${slug}/members/`,
-      memberData
-    );
-    return response.data;
-  },
+  // addProjectMember: async (
+  //   slug: string,
+  //   memberData: { user: number; role: string }
+  // ): Promise<ProjectMembership> => {
+  //   const response = await api.post(
+  //     `/api/projects/${slug}/members/`,
+  //     memberData
+  //   );
+  //   return response.data;
+  // },
 
   updateProjectMember: async (
     slug: string,

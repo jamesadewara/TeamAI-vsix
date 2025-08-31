@@ -3,6 +3,7 @@ import { useNavigation } from '../context/NavigationContext';
 import { useAuth } from '../context/AuthContext';
 import { ArrowLeft, Plus, Play, Pause, Trash2 } from 'lucide-react';
 import { aiSessionsAPI } from '../api/aiSessions';
+import { useProjects } from '../context/ProjectContext';
 
 interface AISession {
   id: number;
@@ -12,22 +13,23 @@ interface AISession {
 }
 
 export const AISessions: React.FC = () => {
-  const { currentProject, setCurrentView } = useNavigation();
-  const { token } = useAuth();
+  const {  setCurrentView } = useNavigation();
+  const { currentProject } = useProjects();
+  const { accessToken } = useAuth();
   const [sessions, setSessions] = useState<AISession[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (currentProject && token) {
+    if (currentProject && accessToken) {
       fetchSessions();
     }
-  }, [currentProject, token]);
+  }, [currentProject, accessToken]);
 
   const fetchSessions = async () => {
     try {
       setLoading(true);
-      const data = await aiSessionsAPI.getSessions(currentProject.slug, token!);
+      const data = await aiSessionsAPI.getSessions(currentProject?.id||"", accessToken!);
       setSessions(data);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to fetch AI sessions');
@@ -39,9 +41,9 @@ export const AISessions: React.FC = () => {
   const createSession = async () => {
     try {
       const newSession = await aiSessionsAPI.createSession(
-        currentProject.slug, 
+        currentProject?.id||"", 
         { name: `New Session ${sessions.length + 1}` },
-        token!
+        accessToken!
       );
       setSessions([...sessions, newSession]);
     } catch (err: any) {
@@ -53,10 +55,10 @@ export const AISessions: React.FC = () => {
     try {
       const newStatus = currentStatus === 'running' ? 'paused' : 'running';
       await aiSessionsAPI.updateSessionStatus(
-        currentProject.slug,
+        currentProject?.id||"",
         sessionId,
         { status: newStatus },
-        token!
+        accessToken!
       );
       setSessions(sessions.map(session => 
         session.id === sessionId ? { ...session, status: newStatus } : session
@@ -68,7 +70,7 @@ export const AISessions: React.FC = () => {
 
   const deleteSession = async (sessionId: number) => {
     try {
-      await aiSessionsAPI.deleteSession(currentProject.slug, sessionId, token!);
+      await aiSessionsAPI.deleteSession(currentProject?.id||"", sessionId, accessToken!);
       setSessions(sessions.filter(session => session.id !== sessionId));
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to delete session');

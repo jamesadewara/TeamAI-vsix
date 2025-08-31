@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Eye, EyeOff } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useProjects } from '../context/ProjectContext';
 import type { PermissionMode } from '../types';
 

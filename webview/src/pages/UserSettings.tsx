@@ -4,14 +4,12 @@ import { useNavigation } from "../context/NavigationContext";
 import {
   ArrowLeft,
   Save,
-  Bell,
   Shield,
   User,
-  Palette,
   Github,
 } from "lucide-react";
 import { userAPI } from "../api/user";
-import type { UserSettings as UserSettingsType, PermissionMode } from "../types";
+import type { UserSettings as UserSettingsType } from "../types";
 
 export const UserSettings: React.FC = () => {
   const { user, logout } = useAuth();

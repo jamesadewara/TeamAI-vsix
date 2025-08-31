@@ -3,6 +3,7 @@ import { useNavigation } from '../context/NavigationContext';
 import { useAuth } from '../context/AuthContext';
 import { ArrowLeft, Calendar, User, Search, Filter } from 'lucide-react';
 import { auditAPI } from '../api/audit';
+import { useProjects } from '../context/ProjectContext';
 
 interface AuditLog {
   id: number;
@@ -20,7 +21,8 @@ interface AuditLog {
 }
 
 export const AuditLogs: React.FC = () => {
-  const { currentProject, setCurrentView } = useNavigation();
+  const {  setCurrentView } = useNavigation();
+  const { currentProject } = useProjects();
   const { accessToken } = useAuth();
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +39,7 @@ export const AuditLogs: React.FC = () => {
   const fetchLogs = async () => {
     try {
       setLoading(true);
-      const data = await auditAPI.getLogs(currentProject.slug, accessToken!);
+      const data = await auditAPI.getLogs(currentProject?.id||"", accessToken!);
       setLogs(data);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to fetch audit logs');

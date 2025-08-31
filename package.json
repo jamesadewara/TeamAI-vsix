@@ -1,46 +1,86 @@
 {
   "name": "teamai-vsce-extension",
   "version": "1.0.0",
-  "displayName": "TeamAI",
-  "description": "AI-powered development assistant for team collaboration",
+  "displayName": "TeamAI - AI-Powered Developer Collaboration",
+  "description": "Streamline team communication and boost productivity with AI assistance directly in VS Code. Features role-specific collaboration, AI-assisted coding, and real-time project discussions.",
+  "publisher": "james-adewara",
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
   "categories": [
-    "Other"
+    "Other",
+    "Machine Learning", 
+    "Chat"
+  ],
+  "keywords": [
+    "ai",
+    "collaboration",
+    "team", 
+    "assistant",
+    "productivity",
+    "chat",
+    "coding",
+    "deepseek",
+    "ollama",
+    "developer tools",
+    "teamwork",
+    "communication"
   ],
   "activationEvents": [
-    "onCommand:teamai.openPanel"
+    "onStartupFinished"
   ],
-  "main": "./dist/extension.js",
+  "main": "./out/extension.js",
   "files": [
-    "dist/**/*",
-    "webview/dist/**/*"
+    "out/**/*",
+    "webview/dist/**/*",
+    "media/**/*",
+    "README.md",
+    "CHANGELOG.md"
   ],
+  "scripts": {
+    "build:webview": "cd webview && npm run build",
+    "build:extension": "npm run build:webview && tsc -p .",
+    "watch:extension": "tsc -watch -p .",
+    "watch:webview": "cd webview && npm run dev",
+    "package": "npm run build:extension && vsce package --no-dependencies",
+    "vscode:prepublish": "npm run build:extension",
+    "dev": "concurrently \"npm run watch:extension\" \"npm run watch:webview\"",
+    "compile": "tsc -p ."
+  },
   "capabilities": {
     "virtualWorkspaces": true,
     "untrustedWorkspaces": {
       "supported": true
     }
   },
-  "scripts": {
-    "watch": "tsc -watch -p .",
-    "build:webview": "cd webview && npm run build",
-    "build:extension": "npm run build:webview && tsc -p .",
-    "watch:extension": "tsc -watch -p .",
-    "watch:webview": "cd webview && npm run dev",
-    "package": "npm run build:extension && vsce package",
-    "compile": "tsc -p .",
-    "vscode:prepublish": "npm run build:extension"
-  },
   "engines": {
     "vscode": "^1.103.0"
   },
-  "keywords": [],
-  "author": "James Ayomide Adewara",
+  "author": {
+    "name": "James Ayomide Adewara",
+    "email": "jamesadewara@example.com"
+  },
   "contributes": {
     "commands": [
       {
         "command": "teamai.openPanel",
-        "title": "Open TeamAI",
-        "category": "TeamAI"
+        "title": "Open TeamAI Assistant",
+        "category": "TeamAI",
+        "icon": "$(rocket)"
+      },
+      {
+        "command": "teamai.reload",
+        "title": "Reload TeamAI Assistant", 
+        "category": "TeamAI",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "teamai.askAI",
+        "title": "Ask AI About Code",
+        "category": "TeamAI",
+        "icon": "$(comment-discussion)"
       }
     ],
     "viewsContainers": {
@@ -48,37 +88,119 @@
         {
           "id": "teamai-sidebar",
           "title": "TeamAI",
-          "icon": "media/icon.svg"
+          "icon": "$(robot)"
         }
       ]
     },
     "views": {
       "teamai-sidebar": [
         {
-          "icon": "media/icon.svg",
+          "icon": "media/icon.png",
           "id": "teamai-chat",
-          "name": "AI Assistant",
+          "name": "TeamAI Control Panel",
           "type": "webview"
         }
       ]
     },
+    "menus": {
+      "view/title": [
+        {
+          "command": "teamai.openPanel",
+          "when": "view == teamai-chat",
+          "group": "navigation"
+        },
+        {
+          "command": "teamai.reload",
+          "when": "view == teamai-chat", 
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "teamai.openPanel"
+        },
+        {
+          "command": "teamai.reload"
+        },
+        {
+          "command": "teamai.askAI",
+          "when": "editorTextFocus"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "teamai.askAI",
+          "when": "editorHasSelection",
+          "group": "teamai@1"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "teamai.openPanel",
+        "key": "ctrl+shift+t",
+        "mac": "cmd+shift+t"
+      },
+      {
+        "command": "teamai.askAI",
+        "key": "ctrl+shift+a",
+        "mac": "cmd+shift+a",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "teamai.reload",
+        "key": "ctrl+shift+r",
+        "mac": "cmd+shift+r"
+      }
+    ],
     "configuration": {
       "title": "TeamAI",
       "properties": {
         "teamai.backendUrl": {
           "type": "string",
           "default": "http://localhost:8000",
-          "description": "Backend API URL"
+          "description": "Backend API URL for TeamAI services"
+        },
+        "teamai.aiModel": {
+          "type": "string",
+          "enum": ["deepseek-6b", "gpt-3.5-turbo", "claude-3"],
+          "default": "deepseek-6b",
+          "description": "AI model to use for assistance"
+        },
+        "teamai.enableRealTimeSync": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable real-time collaboration synchronization"
+        },
+        "teamai.userRole": {
+          "type": "string",
+          "enum": ["frontend", "backend", "fullstack", "pm", "designer", "qa"],
+          "default": "fullstack",
+          "description": "Your role in the development team"
+        },
+        "teamai.autoOpenOnStartup": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically open TeamAI panel when VS Code starts"
         }
       }
     }
   },
-  "license": "ISC",
+  "license": "MIT",
   "type": "commonjs",
   "devDependencies": {
     "@types/node": "^24.3.0",
     "@types/vscode": "^1.103.0",
+    "concurrently": "^9.2.1",
     "typescript": "^4.9.4",
     "vsce": "^2.15.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jamesadewara/TeamAI-vsix.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jamesadewara/TeamAI-vsix/issues"
+  },
+  "homepage": "https://github.com/jamesadewara/TeamAI-vsix#readme"
 }

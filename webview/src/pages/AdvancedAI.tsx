@@ -3,10 +3,12 @@ import { useNavigation } from '../context/NavigationContext';
 import { useAuth } from '../context/AuthContext';
 import { ArrowLeft, Code, Play, Copy, Download, Sparkles } from 'lucide-react';
 import { aiAPI } from '../api/ai';
+import { useProjects } from '../context/ProjectContext';
 
 export const AdvancedAI: React.FC = () => {
-  const { currentProject, setCurrentView } = useNavigation();
-  const { token } = useAuth();
+  const { setCurrentView } = useNavigation();
+  const { currentProject } = useProjects();
+  const { accessToken } = useAuth();
   const [prompt, setPrompt] = useState('');
   const [generatedCode, setGeneratedCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,7 +20,7 @@ export const AdvancedAI: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await aiAPI.generateCode(currentProject.slug, prompt, token!);
+      const response = await aiAPI.generateCode(currentProject?.id||"", prompt, accessToken!);
       setGeneratedCode(response.code);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to generate code');

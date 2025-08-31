@@ -4,12 +4,14 @@ import { useProjects } from '../context/ProjectContext';
 import { useNavigation } from '../context/NavigationContext';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { CreateProjectModal } from '../components/CreateProjectModal';
-import { Plus, Users, GitBranch, Eye, EyeOff } from 'lucide-react';
+import { Plus, Users, Eye, EyeOff } from 'lucide-react';
+import type { Project } from '../types';
 
 export const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const { projects, loading, error, fetchProjects } = useProjects();
-  const { setCurrentView, setCurrentProject } = useNavigation();
+  const { setCurrentProject } = useProjects();
+  const { setCurrentView } = useNavigation();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
 
@@ -17,7 +19,9 @@ export const Dashboard: React.FC = () => {
     fetchProjects();
   },  []);
 
-  const handleOpenProject = (project: any) => {
+  
+
+  const handleOpenProject = (project: Project) => {
     setCurrentProject(project);
     setCurrentView('project');
   };

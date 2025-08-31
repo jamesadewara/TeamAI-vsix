@@ -1,18 +1,27 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigation } from '../context/NavigationContext';
 import { useProjects } from '../context/ProjectContext';
-import { ArrowLeft, Github, Calendar, Settings, User, Sparkles, Users, GitBranch, Shield } from 'lucide-react';
+import { ArrowLeft, Github, Calendar, Settings, User, Sparkles, Users, GitBranch, Shield, UserPlus } from 'lucide-react';
+import { AddMemberModal } from '../components/AddMemberModal';
 
 export const ProjectDetails: React.FC = () => {
-  const { currentProject, setCurrentView } = useNavigation();
+  const {  setCurrentView } = useNavigation();
+  const { currentProject } = useProjects();
   const { fetchProjectMembers, fetchProjectRepositories, members, repositories } = useProjects();
+  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
 
+  
   useEffect(() => {
+    console.log(currentProject);
     if (currentProject) {
       fetchProjectMembers(currentProject.id);
       fetchProjectRepositories(currentProject.id);
     }
   }, [currentProject]);
+
+   const handleMemberAdded = () => {
+    fetchProjectMembers(currentProject!.id);
+  };
 
   if (!currentProject) {
     setCurrentView('dashboard');
@@ -112,7 +121,16 @@ export const ProjectDetails: React.FC = () => {
 
               {/* Members List */}
               <div className="mt-8">
-                <h2 className="text-xl font-semibold mb-4">Project Members</h2>
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-semibold">Project Members</h2>
+                  <button
+                    onClick={() => setIsAddMemberModalOpen(true)}
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
+                  >
+                    <UserPlus size={16} className="mr-2" />
+                    Add Member
+                  </button>
+                </div>
                 <div className="bg-white rounded-lg shadow overflow-hidden">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
@@ -135,7 +153,11 @@ export const ProjectDetails: React.FC = () => {
                             <div className="flex items-center">
                               <div className="flex-shrink-0 h-10 w-10">
                                 {member.user_details.avatar ? (
-                                  <img className="h-10 w-10 rounded-full" src={member.user_details.avatar} alt="" />
+                                  <img
+                                    className="h-10 w-10 rounded-full"
+                                    src={member.user_details.avatar}
+                                    alt=""
+                                  />
                                 ) : (
                                   <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
                                     <User size={20} className="text-gray-600" />
@@ -154,11 +176,11 @@ export const ProjectDetails: React.FC = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 capitalize">
-                              {member.role}
+                              {member.role||"".replace('_', ' ')}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(member.created_at??"").toLocaleDateString()}
+                            {new Date(member.created_at||"").toLocaleDateString()}
                           </td>
                         </tr>
                       ))}
@@ -166,10 +188,17 @@ export const ProjectDetails: React.FC = () => {
                   </table>
                 </div>
               </div>
+            
+          
             </div>
           </div>
         </div>
       </main>
+      <AddMemberModal
+        isOpen={isAddMemberModalOpen}
+        onClose={() => setIsAddMemberModalOpen(false)}
+        onMemberAdded={handleMemberAdded}
+      />
     </div>
   );
 };

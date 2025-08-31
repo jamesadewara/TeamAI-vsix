@@ -1,7 +1,7 @@
 export type PermissionMode = "suggest_first" | "auto_action";
 
 export interface User {
-  id: number;
+  id: string;
   username: string;
   email: string;
   display_name: string;
@@ -11,9 +11,9 @@ export interface User {
 }
 
 export interface UserSettings {
-  default_permission_mode: PermissionMode;
-  github_username: string;
-  github_pat: string;
+  default_permission_mode?: PermissionMode;
+  github_username?: string;
+  github_pat?: string;
 }
 
 export interface AuthResponse {
@@ -23,7 +23,7 @@ export interface AuthResponse {
 }
 
 export interface Project {
-  id?: string;
+  id: string;
   name?: string;
   slug?: string; 
   description?: string;
@@ -48,8 +48,8 @@ export interface ProjectMembership {
 }
 
 export interface Repository {
-  id: number;
-  project: number;
+  id: string;
+  project: string;
   provider: string;
   name: string;
   default_branch: string;
@@ -60,17 +60,59 @@ export interface Repository {
 }
 
 export interface AISession {
-  id: number;
+  id: string;
   name: string;
   project: number;
   created_at: string;
 }
 
 export interface ChatThread {
-  id: number;
-  title: string;
-  project: number;
+  id?: string;
+  project?: string;
+  role?: string;
+  title?: string;
+  created_by?: User;
+  participants?: string[];
+  participant_count?: number;
+  message_count?: number;
+  last_message?: {
+    content: string;
+    sender_type: string;
+    created_at: string;
+  } | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  thread: string;
+  sender_user: string | null;
+  sender_agent_role: string | null;
+  sender_type: string;
+  content: string;
+  meta: Record<string, any>;
+  action_refs: any[];
+  sender_details: User | { role: string } | null;
   created_at: string;
+  updated_at: string;
+}
+
+export interface GitHubRepo {
+  id: string;
+  name: string;
+  full_name: string;
+  html_url: string;
+  description: string;
+  private: boolean;
+}
+
+export interface GitHubIntegration {
+  id: string;
+  repo_name: string;
+  repo_url: string;
+  connected_at: string;
+  sync_enabled: boolean;
 }
 
 export interface RegistrationData {

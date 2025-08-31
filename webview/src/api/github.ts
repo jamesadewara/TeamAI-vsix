@@ -1,55 +1,52 @@
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import api from "./auth";
+import type { GitHubRepo, GitHubIntegration } from "../types";
 
 export const githubAPI = {
-  getIntegrations: async (projectSlug: string, token: string) => {
-    const response = await axios.get(
-      `${API_BASE_URL}/api/integrations/projects/${projectSlug}/github-links/`,
-      { headers: { Authorization: `Bearer ${token}` } }
+  getIntegrations: async (projectId: string): Promise<GitHubIntegration[]> => {
+    const response = await api.get(
+      `/api/integrations/projects/${projectId}/github/`
     );
     return response.data;
   },
 
-  getRepos: async (token: string) => {
-    const response = await axios.get(
-      `${API_BASE_URL}/api/integrations/github/repos/`,
-      { headers: { Authorization: `Bearer ${token}` } }
+  getRepos: async (): Promise<GitHubRepo[]> => {
+    const response = await api.get("/api/integrations/github/repos/");
+    return response.data;
+  },
+
+  connectRepo: async (
+    projectId: string,
+    repoData: { repo_name: string; repo_url: string }
+  ): Promise<GitHubIntegration> => {
+    const response = await api.post(
+      `/api/integrations/projects/${projectId}/github/`,
+      repoData
     );
     return response.data;
   },
 
-  connectRepo: async (projectSlug: string, repoData: any, token: string) => {
-    const response = await axios.post(
-      `${API_BASE_URL}/api/integrations/projects/${projectSlug}/github-links/`,
-      repoData,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    return response.data;
-  },
-
-  disconnectRepo: async (projectSlug: string, integrationId: number, token: string) => {
-    await axios.delete(
-      `${API_BASE_URL}/api/integrations/projects/${projectSlug}/github-links/${integrationId}/`,
-      { headers: { Authorization: `Bearer ${token}` } }
+  disconnectRepo: async (
+    projectId: string,
+    integrationId: string
+  ): Promise<void> => {
+    await api.delete(
+      `/api/integrations/projects/${projectId}/github/${integrationId}/`
     );
   },
 
-  syncRepos: async (projectSlug: string, token: string) => {
-    const response = await axios.post(
-      `${API_BASE_URL}/api/integrations/projects/${projectSlug}/github-sync/`,
-      {},
-      { headers: { Authorization: `Bearer ${token}` } }
+  syncRepos: async (projectId: string): Promise<void> => {
+    await api.post(`/api/integrations/projects/${projectId}/github/sync/`);
+  },
+
+  updateIntegration: async (
+    projectId: string,
+    integrationId: string,
+    updateData: Partial<GitHubIntegration>
+  ): Promise<GitHubIntegration> => {
+    const response = await api.patch(
+      `/api/integrations/projects/${projectId}/github/${integrationId}/`,
+      updateData
     );
     return response.data;
   },
-
-  updateIntegration: async (projectSlug: string, integrationId: number, updateData: any, token: string) => {
-    const response = await axios.patch(
-      `${API_BASE_URL}/api/integrations/projects/${projectSlug}/github-links/${integrationId}/`,
-      updateData,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    return response.data;
-  }
 };
