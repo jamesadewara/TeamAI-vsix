@@ -88,7 +88,7 @@
         {
           "id": "teamai-sidebar",
           "title": "TeamAI",
-          "icon": "$(robot)"
+          "icon": "media/icon.svg"
         }
       ]
     },
@@ -158,13 +158,13 @@
       "properties": {
         "teamai.backendUrl": {
           "type": "string",
-          "default": "http://localhost:8000",
+          "default": "http://127.0.0.1:8000",
           "description": "Backend API URL for TeamAI services"
         },
         "teamai.aiModel": {
           "type": "string",
-          "enum": ["deepseek-6b", "gpt-3.5-turbo", "claude-3"],
-          "default": "deepseek-6b",
+          "enum": ["deepseek-6b coder"],
+          "default": "deepseek-6b coder",
           "description": "AI model to use for assistance"
         },
         "teamai.enableRealTimeSync": {
